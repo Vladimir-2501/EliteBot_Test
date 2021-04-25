@@ -16,11 +16,12 @@ from requests import get
 from telebot import TeleBot, types
 from bs4 import BeautifulSoup as BS
 
-# База Данных
+# база данных
 conn = sqlite3.connect('db/database.db', check_same_thread=False)
 cursor = conn.cursor()
 
-#Создание бд если её нет
+
+# создание базы данных, если ее нет
 def create_tables():
     users_query = '''CREATE TABLE IF NOT EXISTS USERS 
                         (user_id INTEGER PRIMARY KEY NOT NULL,
@@ -29,31 +30,37 @@ def create_tables():
                         username TEXT)'''
     cursor.execute(users_query)
     conn.commit()
+
+
 create_tables()
 
-# записываем в бд
-def db_table_val(user_id: int, user_name: str, user_surname: str, username: str):
-	cursor.execute('INSERT INTO users (user_id, user_name, user_surname, username) VALUES (?, ?, ?, ?)', (user_id, user_name, user_surname, username))
-	conn.commit()
 
-#language
+# записываем в базу данных
+def db_table_val(user_id: int, user_name: str, user_surname: str, username: str):
+    cursor.execute('INSERT INTO users (user_id, user_name, user_surname, username) VALUES (?, ?, ?, ?)',
+                   (user_id, user_name, user_surname, username))
+    conn.commit()
+
+
+# язык
 config_dict = get_default_config()
 config_dict['language'] = 'ru'
 owm = OWM(config.WEATHER_API, config_dict)
 
 # covid19 = COVID19Py.COVID19()
-covid19 = COVID19Py.COVID19 (url = "https://cvtapi.nl")
+covid19 = COVID19Py.COVID19(url="https://cvtapi.nl")
 
 bot = telebot.TeleBot(config.TOKEN)
 api_weather = config.WEATHER_API
 response = requests.get(config.URLPRIVAT).json()
 
-# start
+
+# старт
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     sticker = open('img/welcome.webp', 'rb')
     bot.send_sticker(message.chat.id, sticker)
-    # keyboard
+    # клавиатура
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton("Помощь")
     btn2 = types.KeyboardButton("Игры")
@@ -62,14 +69,17 @@ def send_welcome(message):
 
     markup.add(btn1, btn2, btn3, btn4)
     # сообщение при команде старт
-    msg = bot.send_message(message.chat.id, "Добро пожаловать, {0.first_name}!\nЯ - <b>{1.first_name}</b>, бот созданный чтобы быть подопытным кроликом.".format(message.from_user, bot.get_me()),
-        parse_mode='html', reply_markup=markup)
+    msg = bot.send_message(message.chat.id,
+                           "Добро пожаловать, {0.first_name}!\nЯ - <b>{1.first_name}</b>, бот созданный чтобы быть "
+                           "подопытным кроликом.".format(
+                               message.from_user, bot.get_me()),
+                           parse_mode='html', reply_markup=markup)
     bot.register_next_step_handler(msg, process_select_step)
 
 
-#Главное меню
+# главное меню
 def menu(message):
-    # keyboard
+    # клавиатура
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton("Помощь")
     btn2 = types.KeyboardButton("Игры")
@@ -78,19 +88,20 @@ def menu(message):
 
     markup.add(btn1, btn2, btn3, btn4)
     msg = bot.send_message(message.chat.id, "Вы в снова в главном меню".format(message.from_user, bot.get_me()),
-        parse_mode='html', reply_markup=markup)
+                           parse_mode='html', reply_markup=markup)
     bot.register_next_step_handler(msg, process_select_step)
-    
+
+
 # обработчик меню
 def process_select_step(message):
     try:
-        if (message.text == 'Помощь'):
+        if message.text == 'Помощь':
             helps(message)
-        elif (message.text == 'Разное'):
+        elif message.text == 'Разное':
             other_command(message)
-        elif (message.text == 'Игры'):
+        elif message.text == 'Игры':
             games(message)
-        elif (message.text == 'Регистрация'):
+        elif message.text == 'Регистрация':
             register_user_confirm(message)
         else:
             send_welcome(message)
@@ -98,27 +109,31 @@ def process_select_step(message):
     except Exception as e:
         return menu(message)
 
-#Регистрация юзеров в бд
+
+# регистрация пользователей в бд
 def register_user_confirm(message):
     us_id = message.from_user.id
     us_name = message.from_user.first_name
     us_sname = message.from_user.last_name
     username = message.from_user.username
-    
+
     db_table_val(user_id=us_id, user_name=us_name, user_surname=us_sname, username=username)
     bot.send_message(message.chat.id, "Вы зарегистрированы")
 
-#help
+
+# помощь
 @bot.message_handler(commands=['help'])
 def helps(message):
     message_text = '⚡️ EliteBot by Vladimir v1.0.1\n\n' \
-                    + 'Создан для того, чтобы приносить пользу 👀\n' \
-                    + 'Тут же можно посмотреть погоду, новости, местоположение, а также и множество других функций - от игр до гороскопа и курса валют!\n\n' \
-                    + '🧩 Чтобы начать взаимодействовать с ботом, используйте нижнее меню.'
+                   + 'Создан для того, чтобы приносить пользу 👀\n' \
+                   + 'Тут же можно посмотреть погоду, новости, местоположение, а также и множество других функций - ' \
+                     'от игр до гороскопа и курса валют!\n\n' \
+                   + '🧩 Чтобы начать взаимодействовать с ботом, используйте нижнее меню.'
     bot.send_message(message.chat.id, message_text)
 
+
 def other_command(message):
-    # keyboard
+    # клавиатура
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton("Погода")
     btn2 = types.KeyboardButton("Курсы Валют")
@@ -127,36 +142,38 @@ def other_command(message):
     btn5 = types.KeyboardButton("Гороскоп")
     btn6 = types.KeyboardButton("Моя геолокация")
     btn7 = types.KeyboardButton("Вернуться")
- 
+
     markup.add(btn1, btn2, btn3, btn4, btn5, btn6, btn7)
     msg = bot.send_message(message.chat.id, "дополнительные функции.".format(message.from_user, bot.get_me()),
-        parse_mode='html', reply_markup=markup)
+                           parse_mode='html', reply_markup=markup)
     bot.register_next_step_handler(msg, process_select_other_step)
+
 
 # Обработчик меню
 def process_select_other_step(message):
     try:
-        if (message.text == 'Погода' or message.text == '/weather' or message.text == '/weather@TheExcelentBot'):
+        if message.text == 'Погода' or message.text == '/weather' or message.text == '/weather@TheExcelentBot':
             weather(message)
-        elif (message.text == 'Курсы Валют'):
+        elif message.text == 'Курсы Валют':
             coins(message)
-        elif (message.text == 'Посты Rss'):
+        elif message.text == 'Посты Rss':
             read_rss(message)
-        elif (message.text == 'Ковид'):
+        elif message.text == 'Ковид':
             covid_cmd(message)
-        elif (message.text == 'Гороскоп'):
+        elif message.text == 'Гороскоп':
             Goroscop(message)
-        elif (message.text == 'Моя локация'):
+        elif message.text == 'Моя локация':
             locationSend(message)
-        elif (message.text == 'Вернуться' or message.text == '/back' or message.text == '/back@TheExcelentBot'):
+        elif message.text == 'Вернуться' or message.text == '/back' or message.text == '/back@TheExcelentBot':
             menu(message)
         else:
             menu(message)
 
     except Exception as e:
-       return menu(message)
+        return menu(message)
 
-###OTHER COMMAND
+
+# ДРУГИЕ КОМАНДЫ
 
 # rss
 @bot.message_handler(commands=['read_rss'])
@@ -171,17 +188,17 @@ def read_rss(message):
 # covid
 @bot.message_handler(commands=['covid'])
 def covid_cmd(message):
-    # keyboard
+    # клавиатура
     markupCovid = types.ReplyKeyboardMarkup(resize_keyboard=True)
     itemus = types.KeyboardButton("США")
     itemru = types.KeyboardButton("Россия")
     itemua = types.KeyboardButton("Украина")
     itemback = types.KeyboardButton("Вернуться")
- 
+
     markupCovid.add(itemus, itemru, itemua, itemback)
 
-    bot.send_message(message.chat.id, "нажмите на страну чтобы узнать подробности", 
-        parse_mode='html', reply_markup=markupCovid)
+    bot.send_message(message.chat.id, "нажмите на страну чтобы узнать подробности",
+                     parse_mode='html', reply_markup=markupCovid)
 
 
 @bot.message_handler(content_types=['text'])
@@ -198,18 +215,18 @@ def covid(message):
         menu(message)
     else:
         covid(message)
-        
-    
+
     if final_covid_message == "":
         date = location[0]['last_updated'].split("T")
         time = date[1].split(".")
         final_covid_message = f"<u>Данные по стране:</u>\nНаселение: {location[0]['country_population']:,}\n" \
-				f"Последнее обновление: {date[0]} {time[0]}\nПоследние данные:\n<b>" \
-				f"Заболевших: </b>{location[0]['latest']['confirmed']:,}\n<b>Сметрей: </b>" \
-				f"{location[0]['latest']['deaths']:,}"
+                              f"Последнее обновление: {date[0]} {time[0]}\nПоследние данные:\n<b>" \
+                              f"Заболевших: </b>{location[0]['latest']['confirmed']:,}\n<b>Сметрей: </b>" \
+                              f"{location[0]['latest']['deaths']:,}"
     bot.send_message(message.chat.id, final_covid_message, parse_mode='html')
 
-# Курсы валют
+
+# курсы валют
 def coins(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     itembtn1 = types.KeyboardButton('USD')
@@ -224,23 +241,26 @@ def coins(message):
 
 def process_coin_step(message):
     try:
-       for coin in response:
-           if (message.text == coin['ccy']):
+        for coin in response:
+            if message.text == coin['ccy']:
                 bot.send_message(message.chat.id, printCoin(coin['buy'], coin['sale']), parse_mode="Markdown")
                 coins(message)
 
     except Exception as e:
-       bot.reply_to(message, 'ooops!')
+        bot.reply_to(message, 'ooops!')
 
+
+# вывод курса пользователю
 def printCoin(buy, sale):
-    '''Вывод курса пользователю'''
     return "💰 *Курс покупки:* " + str(buy) + "\n💰 *Курс продажи:* " + str(sale)
 
-# Погода
+
+# погода
 @bot.message_handler(commands=['weather'])
 def weather(message):
     bot.send_message(message.chat.id, 'В каком населённом пункте хотим узнать погоду?')
     bot.register_next_step_handler(message, weatherSend)
+
 
 def weatherSend(message):
     bot.send_message(message.chat.id, 'загружаем...')
@@ -250,8 +270,9 @@ def weatherSend(message):
         w = observation.weather
         temp = w.temperature('celsius')['temp']
         today = datetime.datetime.today()
-        #answers-weather
-        answer = 'Сегодня, ' + (today.strftime("%d/%m/%Y")) + ' ' + 'в городе ' + message.text + ' ' + w.detailed_status + '\n'
+        # answers-weather
+        answer = 'Сегодня, ' + (
+            today.strftime("%d/%m/%Y")) + ' ' + 'в городе ' + message.text + ' ' + w.detailed_status + '\n'
         answer += 'Температура в районе ' + str(temp) + ' по Цельсию.' + '\n\n'
         if temp < 5:
             answer += 'Сейчас на улице холодно, одевайся тепло!'
@@ -266,10 +287,11 @@ def weatherSend(message):
         bot.send_message(message.chat.id, 'Я ещё не знаю такого города :(\nДавай посмотрим погоду в другом месте?')
         return other_command(message)
 
-#games
+
+# games
 @bot.message_handler(commands=['game'])
 def games(message):
-    #reyboard
+    # клавиатура
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     itemrandom = types.KeyboardButton('Рандомное число')
     itemrandomball = types.KeyboardButton('Магический шар')
@@ -281,69 +303,79 @@ def games(message):
     msg = bot.send_message(message.chat.id, "Выберите игру", reply_markup=markup)
     bot.register_next_step_handler(msg, process_select_games_step)
 
+
 def process_select_games_step(message):
     try:
-        if (message.text == 'Рандомное число'):
-            bot.send_message(message.chat.id, str(random.randint(0,100))) #рандомное число от 0 до 100
-            return menu(message) #возвращает функцию – games (меню)
-        elif (message.text == 'Магический шар'):
-            Magic8Ball(message) 
-        elif (message.text == 'Орёл или Решка'):
+        if message.text == 'Рандомное число':
+            bot.send_message(message.chat.id, str(random.randint(0, 100)))  # рандомное число от 0 до 100
+            return menu(message)  # возвращает функцию – games (меню)
+        elif message.text == 'Магический шар':
+            Magic8Ball(message)
+        elif message.text == 'Орёл или Решка':
             Orel_Or_Reshka(message)
-        elif (message.text == 'Квест'):
+        elif message.text == 'Квест':
             games_kvest(message)
-        elif (message.text == 'Вернуться'):
-            menu(message) 
+        elif message.text == 'Вернуться':
+            menu(message)
         else:
-            menu(message) #возвращает функцию меню
+            menu(message)  # возвращает функцию меню
 
     except Exception as e:
-       return menu(message)
+        return menu(message)
 
-#8ball
+
+# магический шар
 answers = [
-    'Несомненно',
-    'Совершенно верно',
-    'Без сомнения',
-    'Да - определенно',
-    'Вы можете положиться на это',
-    'Насколько я понимаю, да',
-    'Скорее всего',
-    'Перспективы хорошие',
-    'Да Знаки указывают на да',
+    'Все знаки указывают на правду',
     'Ответ туманный',
     'Попробуйте еще раз',
     'Спросите позже',
     'Лучше не говорить вам сейчас',
     'Не могу предсказать сейчас',
-    'Сконцентрируйтесь и спросите еще раз',
+    'Несомненно',
+    'Совершенно верно',
+    'Может быть, а может и нет',
+    'Да - определенно',
     'Не в счет на нем',
     'Мой ответ - нет',
     'Мои источники говорят,что нет',
-    'Прогноз не так хорош',
     'Очень сомнительно'
+    'Вы можете положиться на это',
+    'Насколько я понимаю, да',
+    'Скорее всего',
+    'Перспективы хорошие',
+    'Сконцентрируйтесь и спросите еще раз',
+    'Прогноз не так хорош',
 ]
+
 
 def Magic8Ball(message):
     bot.send_message(message.chat.id, "Задай мне вопрос.")
     get_message_8ball_bot = message.text.strip().lower()
-    bot.register_next_step_handler(message, Magic8BallSend) #следующий шаг – Magic8BallSend
-    
-def Magic8BallSend(message):
-    bot.send_message(message.chat.id, answers[random.randint(0, len(answers)-1)]) #рандомный ответ из списка
-    games(message) #возвращает функцию – games (меню)
+    bot.register_next_step_handler(message, Magic8BallSend)
 
-#Орёл или решка
+
+# рандомный ответ из списка
+def Magic8BallSend(message):
+    bot.send_message(message.chat.id, answers[random.randint(0, len(answers) - 1)])
+    games(message)
+
+
+# орел или решка
 answers_orre = [
     'Орёл',
     'Решка'
 ]
 
-def Orel_Or_Reshka(message):
-    bot.send_message(message.chat.id, answers_orre[random.randint(0, len(answers_orre)-1)]) #рандомный ответ из списка
-    games(message) #возвращает функцию – games (меню)
 
-# Гороскоп
+# рандомный ответ из списка
+def Orel_Or_Reshka(message):
+    bot.send_message(message.chat.id,
+                     answers_orre[random.randint(0, len(answers_orre) - 1)])
+    games(message)
+
+
+# гороскоп
 first = [
     "Сегодня — идеальный день для новых начинаний.",
     "Оптимальный день для того, чтобы решиться на смелый поступок!",
@@ -373,16 +405,13 @@ third = [
     "Если встретите незнакомца на пути — проявите участие, и тогда эта встреча посулит вам приятные хлопоты."
 ]
 
-# Метод, который получает сообщения и обрабатывает их
+
+# метод, который получает сообщения и обрабатывает их
 @bot.message_handler(content_types=['text'])
 def Goroscop(message):
-    # Пишем приветствие
     bot.send_message(message.from_user.id, "Привет, сейчас я расскажу тебе гороскоп на сегодня.")
-    # Готовим кнопки
     keyboard = types.InlineKeyboardMarkup()
-    # По очереди готовим текст и обработчик для каждого знака зодиака
     key_oven = types.InlineKeyboardButton(text='Овен', callback_data='zodiac')
-    # И добавляем кнопку на экран
     keyboard.add(key_oven)
     key_telec = types.InlineKeyboardButton(text='Телец', callback_data='zodiac')
     keyboard.add(key_telec)
@@ -406,35 +435,38 @@ def Goroscop(message):
     keyboard.add(key_vodoley)
     key_ryby = types.InlineKeyboardButton(text='Рыбы', callback_data='zodiac')
     keyboard.add(key_ryby)
-    # Показываем все кнопки сразу и пишем сообщение о выборе
+    # показ кнопок + сообщение о выборе
     bot.send_message(message.from_user.id, text='Выбери свой знак зодиака', reply_markup=keyboard)
 
-# Обработчик нажатий на кнопки
+
+# обработчик нажатий на кнопки
 @bot.callback_query_handler(func=lambda call: True)
 def callback_worker(call):
-    # Если нажали на одну из 12 кнопок — выводим гороскоп
     if call.message:
-        if call.data == 'zodiac': 
-            # Формируем гороскоп
-            msg = random.choice(first) + ' ' + random.choice(second) + ' ' + random.choice(second_add) + ' ' + random.choice(third)
-            # Отправляем текст в Телеграм
+        if call.data == 'zodiac':
+            # тут формируется гороскоп
+            msg = random.choice(first) + ' ' + random.choice(second) + ' ' + random.choice(
+                second_add) + ' ' + random.choice(third)
             bot.send_message(call.id, msg)
             other_command(message)
 
-#Location
+
+# локация
 @bot.message_handler(content_types=["location"])
 def locationSend(message):
     bot.send_message(message.chat.id, 'Отправьте свою геолокацию, и я скажу где вы находитесь')
     bot.register_next_step_handler(message, location)
 
+
 API_URL = "https://geocode-maps.yandex.ru/1.x/"
 apikey = config.APIKEYYANDEX
+
 
 def location(message):
     if message.location is not None:
         coordinate = str(message.location.longitude) + ',' + str(message.location.latitude)
         r = requests.get('https://geocode-maps.yandex.ru/1.x/?apikey=' + apikey + '&format=json&geocode=' + coordinate)
-        
+
         if len(r.json()['response']['GeoObjectCollection']['featureMember']) > 0:
             address = r.json()['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty'][
                 'GeocoderMetaData']['text']
@@ -460,7 +492,6 @@ inventories = {}
 @bot.message_handler(commands=["kvest"])
 def games_kvest(message):
     user = message.chat.id
-
     states[user] = 0
     inventories[user] = []
 
@@ -468,14 +499,15 @@ def games_kvest(message):
 
     process_state(user, states[user], inventories[user])
 
+
 @bot.callback_query_handler(func=lambda call: True)
 def user_answer(call):
     user = call.id
     process_answer(user, call.data)
 
+
 def process_state(user, state, inventory):
     kb = types.InlineKeyboardMarkup()
-
     bot.send_photo(user, pictures[state])
 
     if state == 0:
@@ -488,10 +520,13 @@ def process_state(user, state, inventory):
         kb.add(types.InlineKeyboardButton(text="переплыть", callback_data="1"))
         kb.add(types.InlineKeyboardButton(text="вернуться", callback_data="2"))
 
-        bot.send_message(user, "Перед вами большое подземное озеро, а вдали виднеется маленький остров.", reply_markup=kb)
+        bot.send_message(user, "Перед вами большое подземное озеро, а вдали виднеется маленький остров.",
+                         reply_markup=kb)
 
     if state == 2:
         bot.send_message(user, "Вы выиграли.")
+
+
 @bot.callback_query_handler(func=lambda call: True)
 def process_answer(call, user, answer):
     if states[user] == 0:
@@ -500,10 +535,13 @@ def process_answer(call, user, answer):
         else:
             if "key" in inventories[user]:
                 bot.send_message(user,
-                                 "Перед вами закрытая дверь. Вы пробуете открыть ее ключем, и дверь поддается. Кажется, это выход.")
+                                 "Перед вами закрытая дверь. Вы пробуете открыть ее ключем, и дверь поддается. "
+                                 "Кажется, это выход.")
                 states[user] = 2
             else:
-                bot.send_message(user, "Перед вами закрытая дверь, и, кажется, без ключа ее не открыть. Придется вернуться обратно.")
+                bot.send_message(user,
+                                 "Перед вами закрытая дверь, и, кажется, без ключа ее не открыть. Придется вернуться "
+                                 "обратно.")
                 states[user] = 0
 
     elif states[user] == 1:
@@ -517,7 +555,9 @@ def process_answer(call, user, answer):
 
             chance = randint(0, 100)
             if chance > 30:
-                bot.send_message(user, "Вода оказалось теплой, а в сундуке на острове вы нашли старый ключ. Стоит вернутся обратно.")
+                bot.send_message(user,
+                                 "Вода оказалось теплой, а в сундуке на острове вы нашли старый ключ. Стоит вернутся "
+                                 "обратно.")
                 inventories[user].append("key")
                 states[user] = 0
             else:
@@ -526,11 +566,12 @@ def process_answer(call, user, answer):
 
     process_state(user, states[user], inventories[user])
 
+
 bot.enable_save_next_step_handlers(delay=2)
 bot.load_next_step_handlers()
 
-# Запуск
-if __name__ == '__main__': 
+# запуск бота [не трогать]
+if __name__ == "__main__":
     while True:
         try:
             bot.polling(none_stop=True)
