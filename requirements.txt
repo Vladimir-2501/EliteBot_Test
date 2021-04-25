@@ -1,0 +1,11 @@
+# alphabet-detector
+requests
+pyTelegramBotAPI
+COVID19Py
+beautifulsoup4
+soupsieve
+sqlparse
+urllib3
+pyowm
+datetime
+time
