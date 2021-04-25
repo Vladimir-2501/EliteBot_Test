@@ -340,7 +340,7 @@ answers_orre = [
 ]
 
 def Orel_Or_Reshka(message):
-    bot.send_message(message.chat.id, answers[random.randint(0, len(answers_orre)-1)]) #рандомный ответ из списка
+    bot.send_message(message.chat.id, answers_orre[random.randint(0, len(answers_orre)-1)]) #рандомный ответ из списка
     games(message) #возвращает функцию – games (меню)
 
 # Гороскоп
