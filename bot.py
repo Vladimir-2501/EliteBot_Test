@@ -41,7 +41,8 @@ config_dict = get_default_config()
 config_dict['language'] = 'ru'
 owm = OWM(config.WEATHER_API, config_dict)
 
-covid19 = COVID19Py.COVID19()
+# covid19 = COVID19Py.COVID19()
+covid19 = COVID19Py.COVID19 (url = "https://cvtapi.nl")
 
 bot = telebot.TeleBot(config.TOKEN)
 api_weather = config.WEATHER_API
@@ -58,9 +59,8 @@ def send_welcome(message):
     btn2 = types.KeyboardButton("Игры")
     btn3 = types.KeyboardButton("Разное")
     btn4 = types.KeyboardButton("Регистрация")
-    btn5 = types.KeyboardButton("Proba")
 
-    markup.add(btn1, btn2, btn3, btn4, btn5)
+    markup.add(btn1, btn2, btn3, btn4)
     # сообщение при команде старт
     msg = bot.send_message(message.chat.id, "Добро пожаловать, {0.first_name}!\nЯ - <b>{1.first_name}</b>, бот созданный чтобы быть подопытным кроликом.".format(message.from_user, bot.get_me()),
         parse_mode='html', reply_markup=markup)
@@ -75,9 +75,8 @@ def menu(message):
     btn2 = types.KeyboardButton("Игры")
     btn3 = types.KeyboardButton("Разное")
     btn4 = types.KeyboardButton("Регистрация")
-    btn5 = types.KeyboardButton("Proba")
 
-    markup.add(btn1, btn2, btn3, btn4, btn5)
+    markup.add(btn1, btn2, btn3, btn4)
     msg = bot.send_message(message.chat.id, "Вы в снова в главном меню".format(message.from_user, bot.get_me()),
         parse_mode='html', reply_markup=markup)
     bot.register_next_step_handler(msg, process_select_step)
@@ -93,8 +92,6 @@ def process_select_step(message):
             games(message)
         elif (message.text == 'Регистрация'):
             register_user_confirm(message)
-        elif (message.text == 'Proba'):
-            lala(message)
         else:
             send_welcome(message)
 
@@ -446,90 +443,6 @@ def location(message):
             bot.send_message(message.chat.id, 'Не удалось получить Ваш адрес')
 
 
-
-
-
-
-
-
-
-
-
-@bot.message_handler(commands=['proba'])
-def lala(message):
-    # keyboard
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item1 = types.KeyboardButton("🎲 Рандомное число")
-    item2 = types.KeyboardButton("😊 Как дела?")
- 
-    markup.add(item1, item2)
- 
-    bot.send_message(message.chat.id, "Добро пожаловать, {0.first_name}!\nЯ - <b>{1.first_name}</b>, бот созданный чтобы быть подопытным кроликом.".format(message.from_user, bot.get_me()),
-        parse_mode='html', reply_markup=markup)
-    bot.register_next_step_handler(message, lalala)
-@bot.message_handler(content_types=['text'])
-def lalala(message):
-    if message.chat.type == 'private':
-        if message.text == '🎲 Рандомное число':
-            bot.send_message(message.chat.id, str(random.randint(0,100)))
-        elif message.text == '😊 Как дела?':
- 
-            markup = types.InlineKeyboardMarkup(row_width=2)
-            item1 = types.InlineKeyboardButton("Хорошо", callback_data='good')
-            item2 = types.InlineKeyboardButton("Не очень", callback_data='bad')
- 
-            markup.add(item1, item2)
- 
-            bot.send_message(message.chat.id, 'Отлично, сам как?', reply_markup=markup)
-        else:
-            bot.send_message(message.chat.id, 'Я не знаю что ответить 😢')
- 
-@bot.callback_query_handler(func=lambda call: True)
-def callback_inline(call):
-    try:
-        if call.message:
-            if call.data == 'good':
-                bot.send_message(call.message.chat.id, 'Вот и отличненько 😊')
-            elif call.data == 'bad':
-                bot.send_message(call.message.chat.id, 'Бывает 😢')
- 
-            # remove inline buttons
-            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="😊 Как дела?",
-                reply_markup=None)
-
- 
-    except Exception as e:
-        print(repr(e))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # from telebot import TeleBot, types
 from random import randint
 # from secret import token
@@ -542,8 +455,6 @@ pictures = {
 
 states = {}
 inventories = {}
-
-
 
 
 @bot.message_handler(commands=["kvest"])
