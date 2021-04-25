@@ -266,22 +266,22 @@ def weatherSend(message):
     bot.send_message(message.chat.id, 'загружаем...')
     try:
         mgr = owm.weather_manager()
-        observation = mgr.weather_at_place(message.text)
-        w = observation.weather
-        temp = w.temperature('celsius')['temp']
+        observ = mgr.weather_at_place(message.text)
+        w = observ.weather
+        tmp = w.temperature('celsius')['temp']
         today = datetime.datetime.today()
         # answers-weather
-        answer = 'Сегодня, ' + (
+        answer_weath = 'Сегодня, ' + (
             today.strftime("%d/%m/%Y")) + ' ' + 'в городе ' + message.text + ' ' + w.detailed_status + '\n'
-        answer += 'Температура в районе ' + str(temp) + ' по Цельсию.' + '\n\n'
-        if temp < 5:
-            answer += 'Сейчас на улице холодно, одевайся тепло!'
-        elif temp < 17:
-            answer += 'Сейчас на улице прохладно, одевайся потеплее!'
+        answer_weath += 'Температура в районе ' + str(tmp) + ' по Цельсию.' + '\n\n'
+        if tmp < 5:
+            answer_weath += 'Сейчас на улице холодно, одевайся тепло!'
+        elif tmp < 17:
+            answer_weath += 'Сейчас на улице прохладно, одевайся потеплее!'
         else:
-            answer += 'Погода просто каеф! Одевайся как душе угодно!'
+            answer_weath += 'Погода просто каеф! Одевайся как душе угодно!'
 
-        bot.send_message(message.chat.id, answer)
+        bot.send_message(message.chat.id, answer_weath)
         return menu(message)
     except:
         bot.send_message(message.chat.id, 'Я ещё не знаю такого города :(\nДавай посмотрим погоду в другом месте?')
