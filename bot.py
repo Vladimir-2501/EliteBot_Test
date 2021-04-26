@@ -423,9 +423,10 @@ def callback_worker(call):
             bot.send_message(call.id, message)
             other_command(message)
 
+
+apikey = config.APIKEYYANDEX
 # Геолокация
 @bot.message_handler(content_types=["location"])
-
 def locationSend(message):
     if message.location is not None:
         coord = str(message.location.longitude) + ',' + str(message.location.latitude)
