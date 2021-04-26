@@ -428,6 +428,10 @@ apikey = config.APIKEYYANDEX
 # Геолокация
 @bot.message_handler(content_types=["location"])
 def locationSend(message):
+    bot.send_message(message.chat.id, 'Отправь мне локацию или координаты (долгота, широта):')
+    bot.register_next_step_handler(message, location)
+
+def location(message):
     if message.location is not None:
         coord = str(message.location.longitude) + ',' + str(message.location.latitude)
         r = requests.get('https://geocode-maps.yandex.ru/1.x/?apikey=' + apikey + '&format=json&geocode=' + coord)
