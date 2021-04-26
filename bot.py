@@ -148,7 +148,7 @@ def process_select_other_step(message):
             covid_cmd(message)
         elif (message.text == 'Гороскоп'):
             Goroscop(message)
-        elif (message.text == 'Моя локация'):
+        elif (message.text == 'Моя геолокация'):
             locationSend(message)
         elif (message.text == 'Вернуться' or message.text == '/back' or message.text == '/back@TheExcelentBot'):
             menu(message)
@@ -451,7 +451,7 @@ def get_address_from_coords(coords, message):
 #Эта функция будет использоваться когда человек первый нажал в боте START
 def locationSend(message):
     #эта строка отправляет сообщение пользователю с просьбой послать локацию или координаты
-    bot.send_message(message.from_user.id, text='Отправь мне локацию или координаты (долгота, широта):')
+    bot.send_message(message.chat.id, 'Отправь мне локацию или координаты (долгота, широта):')
     bot.register_next_step_handler(message, text)
 
 
