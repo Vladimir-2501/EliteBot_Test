@@ -509,19 +509,19 @@ def location(message):
 
 
 
-# Эта функция будет использоваться, если пользователь послал локацию.
-def location(message):
-    # получаем обьект сообщения (локации)
-    message = message.text
-    # вытаскиваем из него долготу и ширину
-    current_position = (message.location.longitude, message.location.latitude)
-    # создаем строку в виде ДОЛГОТА,ШИРИНА
-    coords = f"{current_position[0]},{current_position[1]}"
-    # отправляем координаты в нашу функцию получения адреса
-    address_str = get_address_from_coords(coords)
-    # вовщращаем результат пользователю в боте
-    bot.send_message(address_str)
-    menu(message)
+# # Эта функция будет использоваться, если пользователь послал локацию.
+# def location(message):
+#     # получаем обьект сообщения (локации)
+#     message = message.text
+#     # вытаскиваем из него долготу и ширину
+#     current_position = (message.location.longitude, message.location.latitude)
+#     # создаем строку в виде ДОЛГОТА,ШИРИНА
+#     coords = f"{current_position[0]},{current_position[1]}"
+#     # отправляем координаты в нашу функцию получения адреса
+#     address_str = get_address_from_coords(coords)
+#     # вовщращаем результат пользователю в боте
+#     bot.send_message(address_str)
+#     menu(message)
 
 
 pictures = {
