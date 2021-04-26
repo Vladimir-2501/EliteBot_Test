@@ -431,10 +431,11 @@ def locationSend(message):
     bot.send_message(message.chat.id, 'Отправь мне локацию или координаты (долгота, широта):')
     bot.register_next_step_handler(message, location)
 
+@bot.message_handler(content_types=["location"])
 def location(message):
     if message.location is not None:
         coord = str(message.location.longitude) + ',' + str(message.location.latitude)
-        r = requests.get('https://geocode-maps.yandex.ru/1.x/?apikey=' + apikey + '&format=json&geocode=' + coord)
+        r = requests.get('https://geocode-maps.yandex.ru/1.x/?apikey=' + apikey + '&format=json&geocode=' + coord + '&kind=house')
         
         if len(r.json()['response']['GeoObjectCollection']['featureMember']) > 0:
             address = r.json()['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty'][
