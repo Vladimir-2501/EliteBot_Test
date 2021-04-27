@@ -463,9 +463,9 @@ def location(message):
     if message.location is not None:
         coord = str(message.location.longitude) + ',' + str(message.location.latitude)
         r = requests.get('https://geocode-maps.yandex.ru/1.x/?apikey=' + apikey + '&format=json&geocode=' + coord)
-    else:
+    if (message.text != message.location):
         line = message.text  # получаем строку, которую написал пользователь
-        longitude = line.split(' ')[0]  # разбиваем строку на элементы, которые написаны через пробел и сразу преобразовываем в тип данных int
+        longitude = line.split(' ')[0]  # разбиваем строку на элементы, которые написаны через пробел
         latitude = line.split(' ')[1]
         coord = str(longitude) + ',' + str(latitude)
         r = requests.get('https://geocode-maps.yandex.ru/1.x/?apikey=' + apikey + '&format=json&geocode=' + coord)
