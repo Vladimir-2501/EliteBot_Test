@@ -426,102 +426,100 @@ def callback_worker(call):
 
 apikey = config.APIKEYYANDEX
 # Геолокация
-@bot.message_handler(content_types=["location"])
-def locationSend(message):
-    bot.send_message(message.chat.id, 'Отправь мне локацию или координаты (долгота, широта):')
-    bot.register_next_step_handler(message, location)
-
-@bot.message_handler(content_types=["location"])
-def location(message):
-    if message.location is not None:
-        coord = str(message.location.longitude) + ',' + str(message.location.latitude)
-        r = requests.get('https://geocode-maps.yandex.ru/1.x/?apikey=' + apikey + '&format=json&geocode=' + coord + '&kind=house')
-        
-        if len(r.json()['response']['GeoObjectCollection']['featureMember']) > 0:
-            address = r.json()['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty'][
-                'GeocoderMetaData']['text']
-            bot.send_message(message.chat.id, 'Ваш адрес\n{}'.format(address))
-            menu(message)
-        else:
-            bot.send_message(message.chat.id, 'Не удалось получить Ваш адрес')
-            return locationSend(message)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# #Эта функция будет использоваться когда человек первый нажал в боте START
+# @bot.message_handler(content_types=["location"])
 # def locationSend(message):
-#     #эта строка отправляет сообщение пользователю с просьбой послать локацию или координаты
-#     bot.send_message(message.chat.id, 'Отправь мне локацию или координаты (долгота, широта):')
-#     bot.register_next_step_handler(message, text)
-
-
-# # Эта функция будет использоваться, если пользователь послал в бота любой текст.
-# # Мы ожидаем координаты, но если прийдет что-то другое не страшно, ведь мы описали в функции получения адреса возвращение ошибки в случае чего.  
-# def text(message):
-#     # получаем текст от пользователя
-#     coords = message.text
-#     # отправляем текст в нашу функцио получения адреса из координат
-#     address_str = get_address_from_coords(coords)
-#     # вовщращаем результат пользователю в боте
-#     bot.send_message(address_str)
+#     bot.send_message(message.chat.id, 'Отправь мне точку на геопозиции или координаты (долгота, широта):')
 #     bot.register_next_step_handler(message, location)
 
-
-# # это наша функция для получения адреса по координатам. С ней мы знакомы.
-# def get_address_from_coords(coords, message):
-#     PARAMS = {
-#         "apikey": "554d2a22-cbad-4955-a6ab-7c1957e83e14",
-#         "format": "json",
-#         "lang": "ru_RU",
-#         "kind": "house",
-#         "geocode": coords
-#     }
-
-#     try:
-#         r = requests.get(url="https://geocode-maps.yandex.ru/1.x/", params=PARAMS)
-#         json_data = r.json()
-#         address_str = json_data["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]["metaDataProperty"][
-#             "GeocoderMetaData"]["AddressDetails"]["Country"]["AddressLine"]
-#         return address_str
-
-#     except Exception as e:
-#         # единственное что тут изменилось, так это сообщение об ошибке.
-#         return "Не могу определить адрес по этой локации/координатам.\n\nОтправь мне локацию или координаты (долгота, широта):"
-#         menu(message)
-
-
-
-# # Эта функция будет использоваться, если пользователь послал локацию.
+# @bot.message_handler(content_types=["location"])
 # def location(message):
-#     # получаем обьект сообщения (локации)
-#     message = message.text
-#     # вытаскиваем из него долготу и ширину
-#     current_position = (message.location.longitude, message.location.latitude)
-#     # создаем строку в виде ДОЛГОТА,ШИРИНА
-#     coords = f"{current_position[0]},{current_position[1]}"
-#     # отправляем координаты в нашу функцию получения адреса
-#     address_str = get_address_from_coords(coords)
-#     # вовщращаем результат пользователю в боте
-#     bot.send_message(address_str)
-#     menu(message)
+#     if message.location is not None:
+#         coord = str(message.location.longitude) + ',' + str(message.location.latitude)
+#         r = requests.get('https://geocode-maps.yandex.ru/1.x/?apikey=' + apikey + '&format=json&geocode=' + coord)
+        
+#         if len(r.json()['response']['GeoObjectCollection']['featureMember']) > 0:
+#             address = r.json()['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty'][
+#                 'GeocoderMetaData']['text']
+#             bot.send_message(message.chat.id, 'Ваш адрес\n{}'.format(address))
+#             menu(message)
+#         else:
+#             bot.send_message(message.chat.id, 'Не удалось получить Ваш адрес')
+#             return locationSend(message)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Эта функция будет использоваться когда человек первый нажал в боте START
+def locationSend(message):
+    #эта строка отправляет сообщение пользователю с просьбой послать локацию или координаты
+    bot.send_message(message.chat.id, 'Отправь мне точку на геопозиции или координаты (долгота, широта):')
+    bot.register_next_step_handler(message, text)
+
+
+# Эта функция будет использоваться, если пользователь послал в бота любой текст.
+# Мы ожидаем координаты, но если прийдет что-то другое не страшно, ведь мы описали в функции получения адреса возвращение ошибки в случае чего.  
+def text(message):
+    # получаем текст от пользователя
+    coords = message.text
+    # отправляем текст в нашу функцио получения адреса из координат
+    address_str = get_address_from_coords(coords)
+    # вовщращаем результат пользователю в боте
+    bot.send_message(address_str)
+    bot.register_next_step_handler(message, location)
+
+
+# это наша функция для получения адреса по координатам. С ней мы знакомы.
+def get_address_from_coords(coords, message):
+    PARAMS = {
+        "apikey": "554d2a22-cbad-4955-a6ab-7c1957e83e14",
+        "format": "json",
+        "lang": "ru_RU",
+        "kind": "house",
+        "geocode": coords
+    }
+
+    try:
+        r = requests.get(url="https://geocode-maps.yandex.ru/1.x/", params=PARAMS)
+        json_data = r.json()
+        address_str = json_data["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]["metaDataProperty"][
+            "GeocoderMetaData"]["AddressDetails"]["Country"]["AddressLine"]
+        return address_str
+
+    except Exception as e:
+        # единственное что тут изменилось, так это сообщение об ошибке.
+        return "Не могу определить адрес по этой локации/координатам.\n\nОтправь мне локацию или координаты (долгота, широта):"
+        menu(message)
+
+
+
+# Эта функция будет использоваться, если пользователь послал локацию.
+def location(message):
+    # получаем обьект сообщения (локации)
+    message = message.text
+    # вытаскиваем из него долготу и ширину
+    current_position = (message.location.longitude, message.location.latitude)
+    # создаем строку в виде ДОЛГОТА,ШИРИНА
+    coords = f"{current_position[0]},{current_position[1]}"
+    # отправляем координаты в нашу функцию получения адреса
+    address_str = get_address_from_coords(coords)
+    # вовщращаем результат пользователю в боте
+    bot.send_message(address_str)
+    menu(message)
 
 
 pictures = {
