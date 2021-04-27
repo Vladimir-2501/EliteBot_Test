@@ -37,7 +37,7 @@ def db_table_val(user_id: int, user_name: str, user_surname: str, username: str)
 	cursor.execute('INSERT INTO users (user_id, user_name, user_surname, username) VALUES (?, ?, ?, ?)', (user_id, user_name, user_surname, username))
 	conn.commit()
 
-#language
+# язык погоды
 config_dict = get_default_config()
 config_dict['language'] = 'ru'
 owm = OWM(config.WEATHER_API, config_dict)
@@ -48,6 +48,7 @@ covid19 = COVID19Py.COVID19 (url = "https://cvtapi.nl")
 bot = telebot.TeleBot(config.TOKEN)
 api_weather = config.WEATHER_API
 response = requests.get(config.URLPRIVAT).json()
+apikey = config.APIKEYYANDEX
 
 # start
 @bot.message_handler(commands=['start'])
@@ -99,7 +100,7 @@ def process_select_step(message):
     except Exception as e:
         return menu(message)
 
-#Регистрация юзеров в бд
+# Регистрация юзеров в бд
 def register_user_confirm(message):
     us_id = message.from_user.id
     us_name = message.from_user.first_name
@@ -109,7 +110,7 @@ def register_user_confirm(message):
     db_table_val(user_id=us_id, user_name=us_name, user_surname=us_sname, username=username)
     bot.send_message(message.chat.id, "Вы зарегистрированы")
 
-#help
+# помощь
 @bot.message_handler(commands=['help'])
 def helps(message):
     message_text = '⚡️ EliteBot by Vladimir v1.0.1\n\n' \
@@ -120,7 +121,7 @@ def helps(message):
     menu(message)
 
 def other_command(message):
-    # keyboard
+    # Клавиатура
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton("Погода")
     btn2 = types.KeyboardButton("Курсы Валют")
@@ -158,7 +159,7 @@ def process_select_other_step(message):
     except Exception as e:
        return menu(message)
 
-###OTHER COMMAND
+### Другие команды
 
 # rss
 @bot.message_handler(commands=['read_rss'])
@@ -173,7 +174,6 @@ def read_rss(message):
 # covid
 @bot.message_handler(commands=['covid'])
 def covid_cmd(message):
-    # keyboard
     markupCovid = types.ReplyKeyboardMarkup(resize_keyboard=True)
     itemus = types.KeyboardButton("США")
     itemru = types.KeyboardButton("Россия")
@@ -220,7 +220,7 @@ def coins(message):
     itembtn4 = types.KeyboardButton('BTC')
     markup.add(itembtn1, itembtn2, itembtn3, itembtn4)
 
-    msg = bot.send_message(message.chat.id, "Узнать наличный курс СберБанка (в отделениях)", reply_markup=markup)
+    msg = bot.send_message(message.chat.id, "Узнать наличный курс ПриватБанка (в отделениях)", reply_markup=markup)
     bot.register_next_step_handler(msg, process_coin_step)
 
 
@@ -232,7 +232,7 @@ def process_coin_step(message):
                 coins(message)
 
     except Exception as e:
-       bot.reply_to(message, 'ooops!')
+       bot.reply_to(message, 'Ошибка')
 
 def printCoin(buy, sale):
     '''Вывод курса пользователю'''
@@ -265,7 +265,7 @@ def weatherSend(message):
         bot.send_message(message.chat.id, answer)
         return menu(message)
     except:
-        bot.send_message(message.chat.id, 'Я ещё не знаю такого города :(\nДавай посмотрим погоду в другом месте?')
+        bot.send_message(message.chat.id, 'Я не знаю такого города.\nДавай посмотрим погоду в другом месте?')
         return other_command(message)
 
 #games
@@ -411,6 +411,7 @@ def Goroscop(message):
     # Показываем все кнопки сразу и пишем сообщение о выборе
     bot.send_message(message.from_user.id, text='Выбери свой знак зодиака', reply_markup=keyboard)
 
+
 # Обработчик нажатий на кнопки
 @bot.callback_query_handler(func=lambda call: True)
 def callback_worker(call):
@@ -424,102 +425,27 @@ def callback_worker(call):
             other_command(message)
 
 
-apikey = config.APIKEYYANDEX
 # Геолокация
-# @bot.message_handler(content_types=["location"])
-# def locationSend(message):
-#     bot.send_message(message.chat.id, 'Отправь мне точку на геопозиции или координаты (долгота, широта):')
-#     bot.register_next_step_handler(message, location)
-
-# @bot.message_handler(content_types=["location"])
-# def location(message):
-#     if message.location is not None:
-#         coord = str(message.location.longitude) + ',' + str(message.location.latitude)
-#         r = requests.get('https://geocode-maps.yandex.ru/1.x/?apikey=' + apikey + '&format=json&geocode=' + coord)
-        
-#         if len(r.json()['response']['GeoObjectCollection']['featureMember']) > 0:
-#             address = r.json()['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty'][
-#                 'GeocoderMetaData']['text']
-#             bot.send_message(message.chat.id, 'Ваш адрес\n{}'.format(address))
-#             menu(message)
-#         else:
-#             bot.send_message(message.chat.id, 'Не удалось получить Ваш адрес')
-#             return locationSend(message)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#Эта функция будет использоваться когда человек первый нажал в боте START
+@bot.message_handler(content_types=["location"])
 def locationSend(message):
-    #эта строка отправляет сообщение пользователю с просьбой послать локацию или координаты
     bot.send_message(message.chat.id, 'Отправь мне точку на геопозиции или координаты (долгота, широта):')
-    bot.register_next_step_handler(message, text)
-
-
-# Эта функция будет использоваться, если пользователь послал в бота любой текст.
-# Мы ожидаем координаты, но если прийдет что-то другое не страшно, ведь мы описали в функции получения адреса возвращение ошибки в случае чего.  
-def text(message):
-    # получаем текст от пользователя
-    coords = message.text
-    # отправляем текст в нашу функцио получения адреса из координат
-    address_str = get_address_from_coords(coords)
-    # вовщращаем результат пользователю в боте
-    bot.send_message(address_str)
     bot.register_next_step_handler(message, location)
 
 
-# это наша функция для получения адреса по координатам. С ней мы знакомы.
-def get_address_from_coords(coords, message):
-    PARAMS = {
-        "apikey": "554d2a22-cbad-4955-a6ab-7c1957e83e14",
-        "format": "json",
-        "lang": "ru_RU",
-        "kind": "house",
-        "geocode": coords
-    }
-
-    try:
-        r = requests.get(url="https://geocode-maps.yandex.ru/1.x/", params=PARAMS)
-        json_data = r.json()
-        address_str = json_data["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]["metaDataProperty"][
-            "GeocoderMetaData"]["AddressDetails"]["Country"]["AddressLine"]
-        return address_str
-
-    except Exception as e:
-        # единственное что тут изменилось, так это сообщение об ошибке.
-        return "Не могу определить адрес по этой локации/координатам.\n\nОтправь мне локацию или координаты (долгота, широта):"
-        menu(message)
-
-
-
-# Эта функция будет использоваться, если пользователь послал локацию.
+@bot.message_handler(content_types=["location"])
 def location(message):
-    # получаем обьект сообщения (локации)
-    message = message.text
-    # вытаскиваем из него долготу и ширину
-    current_position = (message.location.longitude, message.location.latitude)
-    # создаем строку в виде ДОЛГОТА,ШИРИНА
-    coords = f"{current_position[0]},{current_position[1]}"
-    # отправляем координаты в нашу функцию получения адреса
-    address_str = get_address_from_coords(coords)
-    # вовщращаем результат пользователю в боте
-    bot.send_message(address_str)
-    menu(message)
+    if message.location is not None:
+        coord = str(message.location.longitude) + ',' + str(message.location.latitude)
+        r = requests.get('https://geocode-maps.yandex.ru/1.x/?apikey=' + apikey + '&format=json&geocode=' + coord)
+        
+        if len(r.json()['response']['GeoObjectCollection']['featureMember']) > 0:
+            address = r.json()['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty'][
+                'GeocoderMetaData']['text']
+            bot.send_message(message.chat.id, 'Ваш адрес\n{}'.format(address))
+            menu(message)
+        else:
+            bot.send_message(message.chat.id, 'Не удалось получить Ваш адрес')
+            return locationSend(message)
 
 
 pictures = {
@@ -543,10 +469,12 @@ def games_kvest(message):
 
     process_state(user, states[user], inventories[user])
 
+
 @bot.callback_query_handler(func=lambda call: True)
 def user_answer(call):
     user = call.id
     process_answer(user, call.data)
+
 
 def process_state(user, state, inventory):
     kb = types.InlineKeyboardMarkup()
@@ -567,6 +495,8 @@ def process_state(user, state, inventory):
 
     if state == 2:
         bot.send_message(user, "Вы выиграли.")
+
+
 @bot.callback_query_handler(func=lambda call: True)
 def process_answer(call, user, answer):
     if states[user] == 0:
@@ -601,8 +531,10 @@ def process_answer(call, user, answer):
 
     process_state(user, states[user], inventories[user])
 
+
 bot.enable_save_next_step_handlers(delay=2)
 bot.load_next_step_handlers()
+
 
 # Запуск
 if __name__ == '__main__': 
