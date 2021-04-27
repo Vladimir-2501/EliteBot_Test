@@ -441,11 +441,10 @@ def location(message):
             address = r.json()['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty'][
                 'GeocoderMetaData']['text']
             bot.send_message(message.chat.id, 'Ваш адрес\n{}'.format(address))
+            menu(message)
         else:
             bot.send_message(message.chat.id, 'Не удалось получить Ваш адрес')
-            menu(message)
-    menu(message)
-
+            return locationSend(message)
 
 
 
