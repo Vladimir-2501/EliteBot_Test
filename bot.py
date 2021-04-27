@@ -463,6 +463,12 @@ def location(message):
     if message.location is not None:
         coord = str(message.location.longitude) + ',' + str(message.location.latitude)
         r = requests.get('https://geocode-maps.yandex.ru/1.x/?apikey=' + apikey + '&format=json&geocode=' + coord)
+    else:
+        line = message.text  # получаем строку, которую написал пользователь
+        longitude = line.split(' ')[0]  # разбиваем строку на элементы, которые написаны через пробел и сразу преобразовываем в тип данных int
+        latitude = line.split(' ')[1]
+        coord = str(longitude) + ',' + str(latitude)
+        r = requests.get('https://geocode-maps.yandex.ru/1.x/?apikey=' + apikey + '&format=json&geocode=' + coord)
 
     if len(r.json()['response']['GeoObjectCollection']['featureMember']) > 0: 
         address = r.json()['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty'][ 'GeocoderMetaData']['text']
